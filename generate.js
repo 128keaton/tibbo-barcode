@@ -84,7 +84,10 @@ const scan = () => {
 
 
                 printed.push(device.id);
-                printDeviceBarcode(type, mac, printer, port).then(() => {
+                printDeviceBarcode(type, mac, printer, port).catch(err => {
+                    console.error('Unable to print barcode');
+                    console.log(err);
+                }).then(() => {
                     console.log('Printed label for', mac);
                 })
             }
