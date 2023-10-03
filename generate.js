@@ -65,12 +65,13 @@ const tibboDiscover = new TibboDiscover();
 }
 
 
-
+/**
+ * Scan for Tibbo devices
+ */
 const scan = () => {
-
     console.log('Scanning for devices');
     tibboDiscover.scan().then(devices => {
-
+        console.log(`Found ${devices.length} device(s)`);
 
         devices.forEach(device => {
             if (!printed.includes(device.id)) {
@@ -81,7 +82,7 @@ const scan = () => {
                     if (seq === '000')
                         return '0';
 
-                    return `${parseInt(seq)}`
+                    return `${parseInt(String(seq))}`
                 }).join('.');
 
 
