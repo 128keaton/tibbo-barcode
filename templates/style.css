@@ -1,0 +1,16 @@
+html, body {
+    max-width: 2in;
+    max-height: 1.25in;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    overflow: hidden;
+}
+
+.label {
+    padding: 4px;
+    border: 1px solid;
+}
+
+.label img {
+    width: 100%;
+}
+
