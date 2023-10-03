@@ -111,7 +111,7 @@ router.get("/template", (req, res) => {
 
 router.get('/test', (req, res) => {
     const outputPath = './generated/out.pdf';
-    return createPDF('TEST_TYPE', 'MAC_ADDRESS_DADDY', port, outputPath).then(() => {
+    return createPDF('TPP2W-G2', '0.36.119.87.182.61', port, outputPath).then(() => {
         const stream = fs.createReadStream(outputPath);
         let filename = "out.pdf";
         filename = encodeURIComponent(filename);

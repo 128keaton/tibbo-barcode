@@ -12,12 +12,13 @@ html, body {
     width: 2in;
     height: 1.25in;
     overflow: hidden;
-    margin-top: 15px;
 }
 
 .label img {
-    width: 1.8in;
+    width: 1.7in;
     height: 0.6in;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 .mac {
@@ -28,8 +29,15 @@ html, body {
 .mac, .type {
     text-align: center;
     width: 100%;
+    display: block;
+}
+
+.mac {
+    padding-top: 5px;
 }
 
 .type {
     font-weight: bold;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
