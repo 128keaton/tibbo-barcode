@@ -88,7 +88,7 @@ const scan = () => {
 
                 printed.push(device.id);
                 printDeviceBarcode(type, mac, printer, port).then(() => {
-                    console.log('Printed');
+                    console.log('Printed label for', mac);
                 })
             }
         })
