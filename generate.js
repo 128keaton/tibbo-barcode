@@ -29,9 +29,11 @@ const tibboDiscover = new TibboDiscover();
  * @param port
  * @returns {Promise<string>}
  */
- const printDeviceBarcode = (type, mac, printer, port) => {
+const printDeviceBarcode = (type, mac, printer, port) => {
     const outputPath = './generated/out.pdf';
-    createPDF(type, mac, port, outputPath).then(() => {
+    return createPDF(type, mac, port, outputPath).catch((err) => {
+        return err;
+    }).then(() => {
         return exec(`/usr/bin/lpr -P ${printer} ${outputPath}`)
     })
 }
@@ -44,35 +46,30 @@ const tibboDiscover = new TibboDiscover();
  * @param output
  * @returns {Promise<unknown>}
  */
- const createPDF = (type, mac, port, output) => {
-    return new Promise((resolve, reject) => {
-        const file = fs.createWriteStream(output);
-        const stream = wkhtmltopdf(`http://0.0.0.0:${port}/template?type=${type}&mac=${mac}`, {
-            "margin-top": 0,
-            "margin-bottom": 0,
-            "margin-left": 0,
-            "margin-right": 0,
-            'page-height': '1.25in',
-            'page-width': '2in',
-            'orientation': 'portrait',
-            'disable-smart-shrinking': true
-        });
-
-        stream.pipe(file);
-        stream.on('end', resolve);
-        stream.on('error', reject);
+const createPDF = (type, mac, port, output) => new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(output);
+    const stream = wkhtmltopdf(`http://0.0.0.0:${port}/template?type=${type}&mac=${mac}`, {
+        "margin-top": 0,
+        "margin-bottom": 0,
+        "margin-left": 0,
+        "margin-right": 0,
+        'page-height': '1.25in',
+        'page-width': '2in',
+        'orientation': 'portrait',
+        'disable-smart-shrinking': true
     });
-}
+
+    stream.pipe(file);
+    stream.on('end', resolve);
+    stream.on('error', reject);
+})
 
 
 /**
  * Scan for Tibbo devices
  */
 const scan = () => {
-    console.log('Scanning for devices');
     tibboDiscover.scan().then(devices => {
-        console.log(`Found ${devices.length} device(s)`);
-
         devices.forEach(device => {
             if (!printed.includes(device.id)) {
                 const type = device.board.split('-')[0].replace('(', '-').replace(')', '');
