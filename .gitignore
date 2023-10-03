@@ -1,3 +1,6 @@
 *.pdf
 node_modules
 .idea/
+generated/*.pdf
+generated/*.png
+.env

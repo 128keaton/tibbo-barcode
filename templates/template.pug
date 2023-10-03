@@ -1,10 +1,11 @@
 html
     head
         style
-            include ../public/style.css
+            include style.css
     body
         div(class='label')
             span(class='type')= type
             br
-            span(class='sku')= sku
-            img(src='./barcode?bcid=code128&text=' + mac + '&height=5&width=2')
+            img(src='./barcode?bcid=code128&width=1.9&height=3.5&text=' + mac )
+            br
+            span(class='mac')= mac

@@ -1,16 +1,35 @@
 html, body {
-    max-width: 2in;
-    max-height: 1.25in;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     overflow: hidden;
+    text-align: center;
+    width: 2in;
+    height: 1.25in;
+    margin: 0;
+    padding: 0;
 }
 
 .label {
-    padding: 4px;
-    border: 1px solid;
+    width: 2in;
+    height: 1.25in;
+    overflow: hidden;
+    margin-top: 15px;
 }
 
 .label img {
+    width: 1.8in;
+    height: 0.6in;
+}
+
+.mac {
+    text-align: center;
+}
+
+
+.mac, .type {
+    text-align: center;
     width: 100%;
 }
 
+.type {
+    font-weight: bold;
+}
