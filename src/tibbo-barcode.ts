@@ -192,17 +192,11 @@ export const main = () => {
     }
   });
 
-  function scan() {
-    console.log('Scanning');
-    tibboDiscover
-      .scan(scanTimeout)
-      .then((devices) => {
-        return processDevices(devices, devicesDB, printer, port);
-      })
-      .then(() => {
-        console.log(`Done! Next scan in ${interval / 1000} seconds`);
-      });
-  }
+  const scan = () => {
+    tibboDiscover.scan(scanTimeout).then((devices) => {
+      return processDevices(devices, devicesDB, printer, port);
+    });
+  };
 
   app.use('/', router);
   app.listen(port);
@@ -211,9 +205,8 @@ export const main = () => {
   console.log(`Available at 0.0.0.0:${port}`);
   console.log(`Scanning every ${interval / 1000} seconds`);
   console.log(`PRINTER='${printer}'`);
-  setInterval(() => {
-    scan();
-  }, interval);
+
+  setInterval(scan, interval);
   scan();
 };
 
