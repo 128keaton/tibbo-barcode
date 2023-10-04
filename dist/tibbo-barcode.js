@@ -156,26 +156,18 @@ const main = () => {
             res.send({ success: true, message: 'Removed all devices from database' });
         }
     });
-    function scan() {
-        console.log('Scanning');
-        tibboDiscover
-            .scan(scanTimeout)
-            .then((devices) => {
+    const scan = () => {
+        tibboDiscover.scan(scanTimeout).then((devices) => {
             return processDevices(devices, devicesDB, printer, port);
-        })
-            .then(() => {
-            console.log(`Done! Next scan in ${interval / 1000} seconds`);
         });
-    }
+    };
     app.use('/', router);
     app.listen(port);
     console.clear();
     console.log(`Available at 0.0.0.0:${port}`);
     console.log(`Scanning every ${interval / 1000} seconds`);
     console.log(`PRINTER='${printer}'`);
-    setInterval(() => {
-        scan();
-    }, interval);
+    setInterval(scan, interval);
     scan();
 };
 exports.main = main;
