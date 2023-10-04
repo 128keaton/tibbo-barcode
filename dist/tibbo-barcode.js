@@ -104,6 +104,7 @@ const main = () => {
     (0, dotenv_1.config)();
     // Environment
     const port = parseInt(process.env.APP_PORT || '8118');
+    const scanTimeout = parseInt(process.env.SCAN_TIMEOUT || '5000');
     const interval = parseInt(process.env.INTERVAL || '10000');
     const printer = process.env.PRINTER || 'ZPL';
     const app = (0, express_1.default)();
@@ -152,16 +153,26 @@ const main = () => {
         }
     });
     function scan() {
-        tibboDiscover.scan().then((devices) => {
+        console.log('Scanning');
+        tibboDiscover
+            .scan(scanTimeout)
+            .then((devices) => {
             return processDevices(devices, devicesDB, printer, port);
+        })
+            .then(() => {
+            console.log(`Done! Next scan in ${interval / 1000} seconds`);
         });
     }
     app.use('/', router);
     app.listen(port);
+    console.clear();
     console.log(`Available at 0.0.0.0:${port}`);
     console.log(`Scanning every ${interval / 1000} seconds`);
     console.log(`PRINTER='${printer}'`);
-    setInterval(scan, interval);
+    setInterval(() => {
+        scan();
+    }, interval);
+    scan();
 };
 exports.main = main;
 if (require.main == module) {
