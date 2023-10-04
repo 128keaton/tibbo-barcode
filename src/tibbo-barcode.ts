@@ -96,6 +96,8 @@ const processDevices = (
 ) => {
   newDevices.forEach((device) => {
     const mac = device.id
+      .replace('[', '')
+      .replace(']', '')
       .split('.')
       .map((seq) => {
         if (seq === '000') return '0';
@@ -110,6 +112,7 @@ const processDevices = (
         .replace('(', '-')
         .replace(')', '');
 
+      console.log('Printing label for', mac);
       printDeviceBarcode(type, mac, printer, port).then((success) => {
         if (success) {
           console.log('Printed label for', mac);

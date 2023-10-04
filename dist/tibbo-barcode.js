@@ -78,6 +78,8 @@ const createPDF = (type, mac, port, output) => new Promise((resolve, reject) => 
 const processDevices = (newDevices, devicesCollection, printer, port) => {
     newDevices.forEach((device) => {
         const mac = device.id
+            .replace('[', '')
+            .replace(']', '')
             .split('.')
             .map((seq) => {
             if (seq === '000')
@@ -90,6 +92,7 @@ const processDevices = (newDevices, devicesCollection, printer, port) => {
                 .split('-')[0]
                 .replace('(', '-')
                 .replace(')', '');
+            console.log('Printing label for', mac);
             printDeviceBarcode(type, mac, printer, port).then((success) => {
                 if (success) {
                     console.log('Printed label for', mac);
