@@ -1,6 +1,6 @@
 # tibbo-barcode
 
-Install deps, create `.env` and go!
+Install deps, create `.env`, build, and go!
 
 ### deps
 * wkhtmltopdf
