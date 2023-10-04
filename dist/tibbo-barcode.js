@@ -28,10 +28,20 @@ const printDeviceBarcode = (type, mac, printer, port) => {
     const outputPath = './generated/out.pdf';
     return createPDF(type, mac, port, outputPath)
         .catch((err) => {
-        return err;
+        console.error('Could not generate PDF');
+        console.error(err);
+        return false;
     })
         .then(() => {
         return exec(`/usr/bin/lpr -P ${printer} ${outputPath}`);
+    })
+        .then(() => {
+        return true;
+    })
+        .catch((err) => {
+        console.error('Could not print barcode');
+        console.error(err);
+        return false;
     });
 };
 /**
@@ -67,37 +77,28 @@ const createPDF = (type, mac, port, output) => new Promise((resolve, reject) => 
  */
 const processDevices = (newDevices, devicesCollection, printer, port) => {
     newDevices.forEach((device) => {
-        if (!devicesCollection.has((deviceID) => deviceID === device.id)) {
-            const { mac, type } = processDevice(device);
-            devicesCollection.create(device.id);
-            printDeviceBarcode(type, mac, printer, port)
-                .catch((err) => {
-                console.error('Unable to print barcode');
-                console.log(err);
-            })
-                .then(() => {
-                console.log('Printed label for', mac);
+        const mac = device.id
+            .split('.')
+            .map((seq) => {
+            if (seq === '000')
+                return '0';
+            return `${parseInt(String(seq))}`;
+        })
+            .join('.');
+        if (!devicesCollection.has((deviceEntry) => deviceEntry.mac === mac)) {
+            const type = device.board
+                .split('-')[0]
+                .replace('(', '-')
+                .replace(')', '');
+            printDeviceBarcode(type, mac, printer, port).then((success) => {
+                if (success) {
+                    console.log('Printed label for', mac);
+                    devicesCollection.create({ mac, type });
+                }
             });
         }
     });
     devicesCollection.save();
-};
-/**
- * Process Tibbo device
- * @param device
- */
-const processDevice = (device) => {
-    const type = device.board.split('-')[0].replace('(', '-').replace(')', '');
-    const rawMac = device.id.replace('[', '').replace(']', '');
-    const mac = rawMac
-        .split('.')
-        .map((seq) => {
-        if (seq === '000')
-            return '0';
-        return `${parseInt(String(seq))}`;
-    })
-        .join('.');
-    return { mac, type };
 };
 const main = () => {
     // Import env
@@ -114,7 +115,7 @@ const main = () => {
     const devicesDB = db.createCollection('devices');
     // Configurations
     app.set('view engine', 'pug');
-    app.set('views', (0, path_1.join)(__dirname, 'templates'));
+    app.set('views', (0, path_1.join)(process.env.PWD || __dirname, 'templates'));
     app.use(express_1.default.static('generated'));
     // Routes
     router.get('/barcode', (req, res) => {
@@ -135,14 +136,14 @@ const main = () => {
         });
     });
     router.get('/remove', (req, res) => {
-        if (req.query.hasOwnProperty('id') && !!req.query['id']) {
-            const deviceID = req.query['id'];
-            if (devicesDB.has((deviceID) => deviceID === deviceID)) {
-                devicesDB.remove((deviceID) => deviceID === req.query['id']);
+        if (req.query.hasOwnProperty('mac') && !!req.query['mac']) {
+            const mac = req.query['mac'];
+            if (devicesDB.has((deviceEntry) => deviceEntry.mac === mac)) {
+                devicesDB.remove((deviceEntry) => deviceEntry.mac === mac);
                 devicesDB.save();
                 res.send({
                     success: true,
-                    message: `Removed device with ID '${deviceID}' from database`,
+                    message: `Removed device with mac '${mac}' from database`,
                 });
             }
         }
