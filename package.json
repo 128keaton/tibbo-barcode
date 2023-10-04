@@ -6,9 +6,7 @@
   "types": "dist/tibbo-barcode.d.ts",
   "scripts": {
     "clean": "rm -rf dist && mkdir dist",
-    "build": "npm run clean && tsc && npm run copy:templates && npm run dir:generated",
-    "copy:templates": "cp -r ./src/templates ./dist/",
-    "dir:generated": "mkdir ./dist/generated"
+    "build": "npm run clean && tsc"
   },
   "bin": {
     "tibbo-barcode": "./dist/tibbo-barcode.js"

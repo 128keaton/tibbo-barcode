@@ -4,4 +4,3 @@ node_modules
 generated/*.pdf
 generated/*.png
 .env
-dist/
