@@ -69,6 +69,43 @@ const createPDF = (type, mac, port, output) => new Promise((resolve, reject) => 
     stream.on('error', reject);
 });
 /**
+ * Convert a device's ID to a MAC
+ * @param deviceID
+ */
+const deviceToMac = (deviceID) => {
+    return deviceID
+        .replace('[', '')
+        .replace(']', '')
+        .split('.')
+        .map((seq) => {
+        if (seq === '000')
+            return '0';
+        return `${parseInt(String(seq))}`;
+    })
+        .join('.');
+};
+/**
+ * Remove a device from the devices DB
+ * @param devicesDB
+ * @param mac
+ */
+const removeDevice = (devicesDB, mac) => {
+    if (hasDevice(devicesDB, mac)) {
+        devicesDB.remove((deviceEntry) => deviceEntry.mac === mac);
+        devicesDB.save();
+        return true;
+    }
+    return false;
+};
+/**
+ * Check if the collection contains a device
+ * @param devicesDB
+ * @param mac
+ */
+const hasDevice = (devicesDB, mac) => {
+    return devicesDB.has((deviceEntry) => deviceEntry.mac === mac);
+};
+/**
  * Process Tibbo devices
  * @param newDevices
  * @param devicesCollection
@@ -78,18 +115,8 @@ const createPDF = (type, mac, port, output) => new Promise((resolve, reject) => 
  */
 const processDevices = (newDevices, devicesCollection, printer, port, allowDuplicates) => {
     newDevices.forEach((device) => {
-        const mac = device.id
-            .replace('[', '')
-            .replace(']', '')
-            .split('.')
-            .map((seq) => {
-            if (seq === '000')
-                return '0';
-            return `${parseInt(String(seq))}`;
-        })
-            .join('.');
-        if (!devicesCollection.has((deviceEntry) => deviceEntry.mac === mac) ||
-            allowDuplicates) {
+        const mac = deviceToMac(device.id);
+        if (!hasDevice(devicesCollection, mac) || allowDuplicates) {
             const type = device.board
                 .split('-')[0]
                 .replace('(', '-')
@@ -116,7 +143,6 @@ const main = () => {
     const allowDuplicates = `${process.env.ALLOW_DUPLICATES || 'false'}` === 'true';
     const app = (0, express_1.default)();
     const router = express_1.default.Router();
-    const tibboDiscover = new tibbo_discover_1.TibboDiscover();
     const db = new simpl_db_1.Database();
     const devicesDB = db.createCollection('devices');
     // Configurations
@@ -146,14 +172,16 @@ const main = () => {
     router.get('/remove', (req, res) => {
         if (req.query.hasOwnProperty('mac') && !!req.query['mac']) {
             const mac = req.query['mac'];
-            if (devicesDB.has((deviceEntry) => deviceEntry.mac === mac)) {
-                devicesDB.remove((deviceEntry) => deviceEntry.mac === mac);
-                devicesDB.save();
+            const didRemove = removeDevice(devicesDB, mac);
+            if (didRemove)
                 res.send({
                     success: true,
                     message: `Removed device with mac '${mac}' from database`,
                 });
-            }
+            else
+                res.send({
+                    success: false,
+                });
         }
         else {
             devicesDB.remove();
@@ -162,6 +190,7 @@ const main = () => {
         }
     });
     const scan = () => {
+        const tibboDiscover = new tibbo_discover_1.TibboDiscover();
         tibboDiscover.scan(scanTimeout).then((devices) => {
             return processDevices(devices, devicesDB, printer, port, allowDuplicates);
         });
@@ -172,6 +201,7 @@ const main = () => {
     console.log(`Available at 0.0.0.0:${port}`);
     console.log(`Scanning every ${interval / 1000} seconds`);
     console.log(`PRINTER='${printer}'`);
+    console.log(`ALLOW_DUPLICATES='${allowDuplicates}'`);
     setInterval(scan, interval);
     scan();
 };
