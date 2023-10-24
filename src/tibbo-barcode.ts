@@ -6,7 +6,7 @@ import { request } from 'bwip-js';
 import wkhtmltopdf from 'wkhtmltopdf';
 import util from 'util';
 import { exec as originalExec } from 'child_process';
-import { Collection, Database } from 'simpl.db';
+import SimplDB, { Collection, Database } from 'simpl.db';
 import { createReadStream } from 'fs';
 import fs from 'fs';
 const exec = util.promisify(originalExec);
@@ -82,6 +82,24 @@ const createPDF = (type: string, mac: string, port: number, output: string) =>
   });
 
 /**
+ * Remove a device from the devices DB
+ * @param devicesDB
+ * @param mac
+ */
+const removeDevice = (
+  devicesDB: SimplDB.Collection<SimplDB.Readable<DeviceEntry>>,
+  mac: string,
+) => {
+  if (devicesDB.has((deviceEntry) => deviceEntry.mac === mac)) {
+    devicesDB.remove((deviceEntry) => deviceEntry.mac === mac);
+    devicesDB.save();
+    return true;
+  }
+
+  return false;
+};
+
+/**
  * Process Tibbo devices
  * @param newDevices
  * @param devicesCollection
@@ -108,10 +126,7 @@ const processDevices = (
       })
       .join('.');
 
-    if (
-      !devicesCollection.has((deviceEntry) => deviceEntry.mac === mac) ||
-      allowDuplicates
-    ) {
+    if (!devicesCollection.has((deviceEntry) => deviceEntry.mac === mac)) {
       const type = device.board
         .split('-')[0]
         .replace('(', '-')
@@ -122,6 +137,12 @@ const processDevices = (
         if (success) {
           console.log('Printed label for', mac);
           devicesCollection.create({ mac, type });
+        }
+
+        if (allowDuplicates) {
+          setTimeout(() => {
+            removeDevice(devicesCollection, mac);
+          }, 1500);
         }
       });
     }
