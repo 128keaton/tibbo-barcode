@@ -74,8 +74,9 @@ const createPDF = (type, mac, port, output) => new Promise((resolve, reject) => 
  * @param devicesCollection
  * @param printer
  * @param port
+ * @param allowDuplicates
  */
-const processDevices = (newDevices, devicesCollection, printer, port) => {
+const processDevices = (newDevices, devicesCollection, printer, port, allowDuplicates) => {
     newDevices.forEach((device) => {
         const mac = device.id
             .replace('[', '')
@@ -87,7 +88,8 @@ const processDevices = (newDevices, devicesCollection, printer, port) => {
             return `${parseInt(String(seq))}`;
         })
             .join('.');
-        if (!devicesCollection.has((deviceEntry) => deviceEntry.mac === mac)) {
+        if (!devicesCollection.has((deviceEntry) => deviceEntry.mac === mac) ||
+            allowDuplicates) {
             const type = device.board
                 .split('-')[0]
                 .replace('(', '-')
@@ -111,6 +113,7 @@ const main = () => {
     const scanTimeout = parseInt(process.env.SCAN_TIMEOUT || '5000');
     const interval = parseInt(process.env.INTERVAL || '10000');
     const printer = process.env.PRINTER || 'ZPL';
+    const allowDuplicates = `${process.env.ALLOW_DUPLICATES || 'false'}` === 'true';
     const app = (0, express_1.default)();
     const router = express_1.default.Router();
     const tibboDiscover = new tibbo_discover_1.TibboDiscover();
@@ -160,7 +163,7 @@ const main = () => {
     });
     const scan = () => {
         tibboDiscover.scan(scanTimeout).then((devices) => {
-            return processDevices(devices, devicesDB, printer, port);
+            return processDevices(devices, devicesDB, printer, port, allowDuplicates);
         });
     };
     app.use('/', router);

@@ -87,12 +87,14 @@ const createPDF = (type: string, mac: string, port: number, output: string) =>
  * @param devicesCollection
  * @param printer
  * @param port
+ * @param allowDuplicates
  */
 const processDevices = (
   newDevices: { board: string; id: string }[],
   devicesCollection: Collection<DeviceEntry>,
   printer: string,
   port: number,
+  allowDuplicates: boolean,
 ) => {
   newDevices.forEach((device) => {
     const mac = device.id
@@ -106,7 +108,10 @@ const processDevices = (
       })
       .join('.');
 
-    if (!devicesCollection.has((deviceEntry) => deviceEntry.mac === mac)) {
+    if (
+      !devicesCollection.has((deviceEntry) => deviceEntry.mac === mac) ||
+      allowDuplicates
+    ) {
       const type = device.board
         .split('-')[0]
         .replace('(', '-')
@@ -134,6 +139,8 @@ export const main = () => {
   const scanTimeout = parseInt(process.env.SCAN_TIMEOUT || '5000');
   const interval = parseInt(process.env.INTERVAL || '10000');
   const printer = process.env.PRINTER || 'ZPL';
+  const allowDuplicates =
+    `${process.env.ALLOW_DUPLICATES || 'false'}` === 'true';
 
   const app = express();
   const router = express.Router();
@@ -196,7 +203,7 @@ export const main = () => {
 
   const scan = () => {
     tibboDiscover.scan(scanTimeout).then((devices) => {
-      return processDevices(devices, devicesDB, printer, port);
+      return processDevices(devices, devicesDB, printer, port, allowDuplicates);
     });
   };
 

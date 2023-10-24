@@ -10,6 +10,7 @@ Install deps, create `.env`, build, and go!
 * CUPS
 
 ### notes
+Allow duplicates by specifying `ALLOW_DUPLICATES=true`
 Specify CUPS printer name with `PRINTER`
 Default port is 8118 and can be overridden with `APP_PORT`
 Default scan interval is 10000ms and can be overridden with `INTERVAL`
