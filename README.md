@@ -15,6 +15,7 @@ Default port is 8118 and can be overridden with `APP_PORT`
 Default scan interval is 10000ms and can be overridden with `INTERVAL`
 Default scan timeout is 5000ms and can be overridden with `SCAN_TIMEOUT`
 
+Default label size is `1.00x0.75"` and would need to be changed _manually_
 
 ### suggested usage
 

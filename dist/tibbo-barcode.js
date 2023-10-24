@@ -59,8 +59,8 @@ const createPDF = (type, mac, port, output) => new Promise((resolve, reject) => 
         marginBottom: '0',
         marginLeft: '0',
         marginRight: '0',
-        pageHeight: '1.25in',
-        pageWidth: '2in',
+        pageHeight: '0.75in',
+        pageWidth: '1.00in',
         orientation: 'Portrait',
         disableSmartShrinking: true,
     }, undefined);
@@ -129,13 +129,15 @@ const main = () => {
     });
     router.get('/test', (req, res) => {
         const outputPath = './generated/out.pdf';
-        return createPDF('TPP2W-G2', '0.36.119.87.182.61', port, outputPath).then(() => {
-            const stream = (0, fs_1.createReadStream)(outputPath);
-            let filename = 'out.pdf';
-            filename = encodeURIComponent(filename);
-            res.setHeader('Content-disposition', 'inline; filename="' + filename + '"');
-            res.setHeader('Content-type', 'application/pdf');
-            stream.pipe(res);
+        printDeviceBarcode('TPP2W-G2', '0.36.119.87.182.61', printer, port).then((success) => {
+            if (success) {
+                const stream = (0, fs_1.createReadStream)(outputPath);
+                let filename = 'out.pdf';
+                filename = encodeURIComponent(filename);
+                res.setHeader('Content-disposition', 'inline; filename="' + filename + '"');
+                res.setHeader('Content-type', 'application/pdf');
+                stream.pipe(res);
+            }
         });
     });
     router.get('/remove', (req, res) => {

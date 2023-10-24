@@ -2,21 +2,21 @@ html, body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     overflow: hidden;
     text-align: center;
-    width: 2in;
-    height: 1.25in;
+    width: 1.00in;
+    height: 0.75in;
     margin: 0;
     padding: 0;
 }
 
 .label {
-    width: 2in;
-    height: 1.25in;
+    width: 1.00in;
+    height: 0.75in;
     overflow: hidden;
 }
 
 .label img {
-    width: 1.7in;
-    height: 0.6in;
+    width: 0.8in;
+    height: 0.28in;
     padding-left: 5px;
     padding-right: 5px;
 }
@@ -33,11 +33,13 @@ html, body {
 }
 
 .mac {
+    font-size: 10px;
     padding-top: 5px;
 }
 
 .type {
     font-weight: bold;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    font-size: 12px;
+    padding-top: 2px;
+    padding-bottom: 4px;
 }
